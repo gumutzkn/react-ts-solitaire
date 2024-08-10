@@ -11,7 +11,9 @@ const Navbar: React.FC = () => {
     setIsPaused,
   } = useGameContext();
   const [seconds, setSeconds] = useState<number>(0);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null
+  );
 
   useEffect(() => {
     if (isGameStarted) {
