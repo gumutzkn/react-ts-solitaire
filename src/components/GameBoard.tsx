@@ -18,6 +18,7 @@ const GameBoard = () => {
     setIsGameWon,
     setIsModelOpen,
     setIsGameStarted,
+    isColumnEmpty,
   } = useGameContext();
 
   useEffect(() => {
@@ -52,7 +53,12 @@ const GameBoard = () => {
             <SequencedCardDeck key={index} />
           ))}
         </div>
-        <div>
+        <div className='relative'>
+          {isColumnEmpty && (
+            <div className='absolute -top-16 right-64 w-[300px] py-3 pl-5 text-white rounded-lg bg-black/70'>
+              Herhangi bir sütun boşken kart dağıtamazsınız!
+            </div>
+          )}
           <RemainingCardContainer>
             {visibleRemainingCards.map((_, index) => (
               <RemainingCard key={index} />

@@ -36,6 +36,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const [isPaused, setIsPaused] = useState<boolean>(false);
   const [isModelOpen, setIsModelOpen] = useState<boolean>(true);
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
+  const [isColumnEmpty, setIsColumnEmpty] = useState<boolean>(false);
   const cardFlipRef = useRef<HTMLAudioElement>(null);
   const shuffleSoundRef = useRef<HTMLAudioElement>(null);
 
@@ -143,6 +144,18 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const handleRemainingCardClick = () => {
     if (remainingCardsDeck.length === 0) return;
 
+    // Kart dağıtımı öncesinde tüm sütunları kontrol et
+    const isAnyColumnEmpty = columns.some(
+      (column) => column.length === 0
+    );
+
+    if (isAnyColumnEmpty) {
+      setIsColumnEmpty(true);
+      return;
+    }
+
+    setIsColumnEmpty(false);
+
     setColumns((prevColumns) => {
       const newColumns = [...prevColumns];
       const newCards = remainingCardsDeck.slice(0, 10);
@@ -194,6 +207,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         setIsModelOpen,
         isPaused,
         setIsPaused,
+        isColumnEmpty,
       }}
     >
       {children}

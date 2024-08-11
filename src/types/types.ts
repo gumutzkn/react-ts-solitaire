@@ -25,4 +25,5 @@ export interface GameContextProps {
   setIsModelOpen: React.Dispatch<React.SetStateAction<boolean>>;
   isPaused: boolean;
   setIsPaused: React.Dispatch<React.SetStateAction<boolean>>;
+  isColumnEmpty: boolean;
 }
