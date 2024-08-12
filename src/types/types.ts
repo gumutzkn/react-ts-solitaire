@@ -2,6 +2,7 @@ export interface Card {
   rank: string;
   id: string;
   isFaceUp: boolean;
+  suit: string;
 }
 
 export interface GameContextProps {
@@ -26,4 +27,6 @@ export interface GameContextProps {
   isPaused: boolean;
   setIsPaused: React.Dispatch<React.SetStateAction<boolean>>;
   isColumnEmpty: boolean;
+  suitOption: 1 | 2 | 4;
+  setSuitOption: React.Dispatch<React.SetStateAction<1 | 2 | 4>>;
 }

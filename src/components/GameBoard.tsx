@@ -19,15 +19,19 @@ const GameBoard = () => {
     setIsModelOpen,
     setIsGameStarted,
     isColumnEmpty,
+    suitOption,
   } = useGameContext();
 
   useEffect(() => {
-    if (countSequence === 8) {
+    const winningSequences =
+      suitOption === 1 ? 8 : suitOption === 2 ? 4 : 2;
+
+    if (countSequence === winningSequences) {
       setIsGameWon(true);
       setIsModelOpen(true);
       setIsGameStarted(false);
     }
-  }, [countSequence]);
+  }, [countSequence, suitOption]);
 
   return (
     <div className='w-[98%] md:w-[90%] min-h-[calc(100vh-72px)] mx-auto py-3 flex flex-col justify-between gap-10'>
@@ -39,6 +43,7 @@ const GameBoard = () => {
                 key={card.id}
                 id={card.id}
                 rank={card.rank}
+                suit={card.suit}
                 index={cardIndex}
                 isFaceUp={card.isFaceUp}
                 columnId={columnIndex}

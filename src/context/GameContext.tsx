@@ -13,6 +13,7 @@ import {
   removeSequence,
   cardValue,
 } from '../utils';
+
 import { Card, GameContextProps } from '../types/types';
 
 const GameContext = createContext<GameContextProps | undefined>(
@@ -39,9 +40,10 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const [isColumnEmpty, setIsColumnEmpty] = useState<boolean>(false);
   const cardFlipRef = useRef<HTMLAudioElement>(null);
   const shuffleSoundRef = useRef<HTMLAudioElement>(null);
+  const [suitOption, setSuitOption] = useState<1 | 2 | 4>(1);
 
   useEffect(() => {
-    const deck = createDeck();
+    const deck = createDeck(suitOption);
     const shuffled = shuffleDeck(deck);
 
     const dealtCards = shuffled.slice(0, 54);
@@ -64,7 +66,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     setColumns(newColumns);
     setRemainingCardsDeck(remainingCardsDeck);
     setVisibleRemainingCards(Array(5).fill(null));
-  }, []);
+  }, [suitOption]);
 
   const handleDrop = (
     cardId: string,
@@ -85,6 +87,16 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       if (cardsToMove.length === 0) return prevColumns;
 
+      // Taşınacak kartlar içinde farklı suitte kart olup olmadığını kontrol et
+      const firstCardSuit = cardsToMove[0].suit;
+      const hasDifferentSuit = cardsToMove.some(
+        (card) => card.suit !== firstCardSuit
+      );
+
+      if (hasDifferentSuit) {
+        return prevColumns;
+      }
+
       // Seçilen kartın altındaki kartların sırayla azalan olup olmadığını kontrol et
       for (let i = 0; i < cardsToMove.length - 1; i++) {
         if (
@@ -95,6 +107,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       }
 
+      // Taşınan sütunun son kartı, taşıdğımız kartların en üstündeki kartın bir alt değerinde mi kontrol et
       const lastCardInToColumn = toColumn[toColumn.length - 1];
 
       if (
@@ -208,6 +221,8 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         isPaused,
         setIsPaused,
         isColumnEmpty,
+        suitOption,
+        setSuitOption,
       }}
     >
       {children}

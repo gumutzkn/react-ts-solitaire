@@ -9,6 +9,8 @@ const Navbar: React.FC = () => {
     setIsGameStarted,
     setIsModelOpen,
     setIsPaused,
+    suitOption,
+    setSuitOption,
   } = useGameContext();
   const [seconds, setSeconds] = useState<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(
@@ -41,6 +43,13 @@ const Navbar: React.FC = () => {
     setIsPaused(true);
   };
 
+  const handleSuitChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedSuit = parseInt(event.target.value) as 1 | 2 | 4;
+    setSuitOption(selectedSuit);
+  };
+
   const formatTime = (totalSeconds: number): string => {
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
@@ -56,12 +65,23 @@ const Navbar: React.FC = () => {
         Solitaire
       </div>
       <div className='text-xl font-bold'>{formatTime(seconds)}</div>
-      <div className='cursor-pointer flex'>
+      <div className='cursor-pointer flex gap-3'>
         {isGameStarted ? (
           <FaPause size={30} onClick={handlePause} />
         ) : (
           <FaPlay size={30} onClick={handleStart} />
         )}
+        <select
+          name='suit-select'
+          id='suit-select'
+          onChange={handleSuitChange}
+          value={suitOption}
+          className='text-black'
+        >
+          <option value='1'>1 Suit</option>
+          <option value='2'>2 Suits</option>
+          <option value='4'>4 Suits</option>
+        </select>
       </div>
     </nav>
   );
