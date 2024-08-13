@@ -19,26 +19,36 @@ const sequence = [
 export const isSequenceComplete = (column: Card[]): boolean => {
   const openCards = column.filter((card) => card.isFaceUp);
 
-  let sequenceIndex = 0;
   let matchedCount = 0;
   let currentSuit: string | null = null;
 
   for (let card of openCards) {
-    if (
-      card.rank === sequence[sequenceIndex] &&
-      (currentSuit === null || card.suit === currentSuit)
-    ) {
-      matchedCount++;
-      sequenceIndex++;
-      currentSuit = card.suit;
-
-      if (matchedCount === 13) {
-        return true;
+    if (matchedCount === 0) {
+      if (card.rank === sequence[matchedCount]) {
+        matchedCount++;
+        currentSuit = card.suit;
       }
     } else {
-      matchedCount = 0;
-      sequenceIndex = 0;
-      currentSuit = null;
+      if (
+        card.rank === sequence[matchedCount] &&
+        card.suit === currentSuit
+      ) {
+        matchedCount++;
+      } else if (
+        card.rank === sequence[0] &&
+        card.suit === currentSuit
+      ) {
+        // Eğer K ile tekrar başlıyorsa, matchedCount'u sıfırlayıp tekrar dene
+        matchedCount = 1;
+      } else {
+        // Sıralama bozuldu, tekrar sıfırla
+        matchedCount = 0;
+        currentSuit = null;
+      }
+    }
+
+    if (matchedCount === 13) {
+      return true;
     }
   }
 
