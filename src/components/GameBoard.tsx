@@ -19,19 +19,16 @@ const GameBoard = () => {
     setIsModelOpen,
     setIsGameStarted,
     isColumnEmpty,
-    suitOption,
+    completedSequences,
   } = useGameContext();
 
   useEffect(() => {
-    const winningSequences =
-      suitOption === 1 ? 8 : suitOption === 2 ? 4 : 2;
-
-    if (countSequence === winningSequences) {
+    if (countSequence === 8) {
       setIsGameWon(true);
       setIsModelOpen(true);
       setIsGameStarted(false);
     }
-  }, [countSequence, suitOption]);
+  }, [countSequence]);
 
   return (
     <div className='w-[98%] md:w-[90%] min-h-[calc(100vh-72px)] mx-auto py-3 flex flex-col justify-between gap-10'>
@@ -54,8 +51,8 @@ const GameBoard = () => {
       </div>
       <div className='flex justify-between'>
         <div className='flex gap-2'>
-          {Array.from({ length: countSequence }).map((_, index) => (
-            <SequencedCardDeck key={index} />
+          {completedSequences.map((suit, index) => (
+            <SequencedCardDeck key={index} suit={suit} />
           ))}
         </div>
         <div className='relative'>

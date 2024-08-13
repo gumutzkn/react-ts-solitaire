@@ -21,21 +21,24 @@ export const isSequenceComplete = (column: Card[]): boolean => {
 
   let sequenceIndex = 0;
   let matchedCount = 0;
+  let currentSuit: string | null = null;
 
   for (let card of openCards) {
-    if (card.rank === sequence[sequenceIndex]) {
+    if (
+      card.rank === sequence[sequenceIndex] &&
+      (currentSuit === null || card.suit === currentSuit)
+    ) {
       matchedCount++;
       sequenceIndex++;
+      currentSuit = card.suit;
+
       if (matchedCount === 13) {
         return true;
       }
     } else {
       matchedCount = 0;
       sequenceIndex = 0;
-      if (card.rank === sequence[sequenceIndex]) {
-        matchedCount++;
-        sequenceIndex++;
-      }
+      currentSuit = null;
     }
   }
 

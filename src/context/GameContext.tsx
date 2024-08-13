@@ -41,6 +41,9 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const cardFlipRef = useRef<HTMLAudioElement>(null);
   const shuffleSoundRef = useRef<HTMLAudioElement>(null);
   const [suitOption, setSuitOption] = useState<1 | 2 | 4>(1);
+  const [completedSequences, setCompletedSequences] = useState<
+    ('spades' | 'hearts' | 'diamonds' | 'clubs')[]
+  >([]);
 
   useEffect(() => {
     const deck = createDeck(suitOption);
@@ -131,6 +134,14 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
       // K'den A'ya kadar sıralı olup olmadığını kontrol et
       if (isSequenceComplete(updatedToColumn)) {
+        setCompletedSequences((prev) => [
+          ...prev,
+          cardsToMove[0].suit as
+            | 'spades'
+            | 'hearts'
+            | 'diamonds'
+            | 'clubs',
+        ]);
         updatedToColumn = removeSequence(updatedToColumn);
         setCountSequence((prev) => prev + 1);
       }
@@ -191,6 +202,14 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       newColumns.forEach((column, columnIndex) => {
         if (isSequenceComplete(column)) {
           newColumns[columnIndex] = removeSequence(column);
+          setCompletedSequences((prev) => [
+            ...prev,
+            column[0].suit as
+              | 'spades'
+              | 'hearts'
+              | 'diamonds'
+              | 'clubs',
+          ]);
         }
       });
 
@@ -223,6 +242,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         isColumnEmpty,
         suitOption,
         setSuitOption,
+        completedSequences,
       }}
     >
       {children}

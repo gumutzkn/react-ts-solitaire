@@ -29,4 +29,5 @@ export interface GameContextProps {
   isColumnEmpty: boolean;
   suitOption: 1 | 2 | 4;
   setSuitOption: React.Dispatch<React.SetStateAction<1 | 2 | 4>>;
+  completedSequences: ('spades' | 'hearts' | 'diamonds' | 'clubs')[];
 }
