@@ -18,6 +18,12 @@ import { Card, GameContextProps } from '../types/types';
 
 import undoSound from '../assets/card-sounds/undo.mp3';
 
+interface HistoryState {
+  columns: Card[][];
+  remainingCardsDeck: Card[];
+  visibleRemainingCards: null[];
+}
+
 const GameContext = createContext<GameContextProps | undefined>(
   undefined
 );
@@ -40,7 +46,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const [isModelOpen, setIsModelOpen] = useState<boolean>(true);
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
   const [isColumnEmpty, setIsColumnEmpty] = useState<boolean>(false);
-  const [history, setHistory] = useState<Card[][][]>([]);
+  const [history, setHistory] = useState<HistoryState[]>([]);
   const [moveCount, setMoveCount] = useState<number>(0);
   const cardFlipRef = useRef<HTMLAudioElement>(null);
   const shuffleSoundRef = useRef<HTMLAudioElement>(null);
@@ -74,7 +80,19 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     setColumns(newColumns);
     setRemainingCardsDeck(remainingCardsDeck);
     setVisibleRemainingCards(Array(5).fill(null));
-    setHistory([JSON.parse(JSON.stringify(newColumns))]);
+
+    // İlk durum historyye kaydet
+    setHistory([
+      {
+        columns: JSON.parse(JSON.stringify(newColumns)),
+        remainingCardsDeck: JSON.parse(
+          JSON.stringify(remainingCardsDeck)
+        ),
+        visibleRemainingCards: JSON.parse(
+          JSON.stringify(Array(5).fill(null))
+        ),
+      },
+    ]);
   }, [suitOption]);
 
   const handleDrop = (
@@ -168,9 +186,18 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         return column;
       });
 
+      // History'ye columns, remainingCardsDeck ve visibleRemainingCards ekle
       setHistory((prevHistory) => [
         ...prevHistory,
-        JSON.parse(JSON.stringify(newColumnsState)),
+        {
+          columns: JSON.parse(JSON.stringify(newColumnsState)),
+          remainingCardsDeck: JSON.parse(
+            JSON.stringify(remainingCardsDeck)
+          ),
+          visibleRemainingCards: JSON.parse(
+            JSON.stringify(visibleRemainingCards)
+          ),
+        },
       ]);
       setMoveCount((prevCount) => prevCount + 1);
       return newColumnsState;
@@ -214,6 +241,13 @@ export const GameProvider = ({ children }: GameProviderProps) => {
       newColumns.forEach((column, columnIndex) => {
         if (isSequenceComplete(column)) {
           newColumns[columnIndex] = removeSequence(column);
+          // Eğer column içinde hala kart varsa, en alttaki kartı açık yap
+          if (newColumns[columnIndex].length > 0) {
+            newColumns[columnIndex][
+              newColumns[columnIndex].length - 1
+            ].isFaceUp = true;
+          }
+
           setCompletedSequences((prev) => [
             ...prev,
             column[0].suit as
@@ -225,9 +259,18 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
+      // History'ye columns, remainingCardsDeck ve visibleRemainingCards ekle
       setHistory((prevHistory) => [
         ...prevHistory,
-        JSON.parse(JSON.stringify(newColumns)),
+        {
+          columns: JSON.parse(JSON.stringify(newColumns)),
+          remainingCardsDeck: JSON.parse(
+            JSON.stringify(remainingCardsDeck)
+          ),
+          visibleRemainingCards: JSON.parse(
+            JSON.stringify(visibleRemainingCards)
+          ),
+        },
       ]);
       setMoveCount((prevCount) => prevCount + 1);
       return newColumns;
@@ -239,10 +282,12 @@ export const GameProvider = ({ children }: GameProviderProps) => {
 
   const handleUndo = () => {
     if (moveCount > 0) {
-      const previousColumns = JSON.parse(
+      const lastState = JSON.parse(
         JSON.stringify(history[moveCount - 1])
       );
-      setColumns(previousColumns);
+      setColumns(lastState.columns);
+      setRemainingCardsDeck(lastState.remainingCardsDeck);
+      setVisibleRemainingCards(lastState.visibleRemainingCards);
       setMoveCount((prevCount) => prevCount - 1);
 
       if (undoSoundRef.current) {
