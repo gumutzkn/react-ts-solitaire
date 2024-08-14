@@ -16,6 +16,8 @@ import {
 
 import { Card, GameContextProps } from '../types/types';
 
+import undoSound from '../assets/card-sounds/undo.mp3';
+
 const GameContext = createContext<GameContextProps | undefined>(
   undefined
 );
@@ -38,8 +40,11 @@ export const GameProvider = ({ children }: GameProviderProps) => {
   const [isModelOpen, setIsModelOpen] = useState<boolean>(true);
   const [isGameWon, setIsGameWon] = useState<boolean>(false);
   const [isColumnEmpty, setIsColumnEmpty] = useState<boolean>(false);
+  const [history, setHistory] = useState<Card[][][]>([]);
+  const [moveCount, setMoveCount] = useState<number>(0);
   const cardFlipRef = useRef<HTMLAudioElement>(null);
   const shuffleSoundRef = useRef<HTMLAudioElement>(null);
+  const undoSoundRef = useRef(new Audio(undoSound));
   const [suitOption, setSuitOption] = useState<1 | 2 | 4>(1);
   const [completedSequences, setCompletedSequences] = useState<
     ('spades' | 'hearts' | 'diamonds' | 'clubs')[]
@@ -69,6 +74,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
     setColumns(newColumns);
     setRemainingCardsDeck(remainingCardsDeck);
     setVisibleRemainingCards(Array(5).fill(null));
+    setHistory([JSON.parse(JSON.stringify(newColumns))]);
   }, [suitOption]);
 
   const handleDrop = (
@@ -146,8 +152,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         setCountSequence((prev) => prev + 1);
       }
 
-      // Yeni sütunları state'te güncelle
-      return prevColumns.map((column, index) => {
+      const newColumnsState = prevColumns.map((column, index) => {
         if (index === fromColumnId) return updatedFromColumn;
         if (index === toColumnId) {
           if (updatedToColumn.length > 0) {
@@ -162,6 +167,13 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
         return column;
       });
+
+      setHistory((prevHistory) => [
+        ...prevHistory,
+        JSON.parse(JSON.stringify(newColumnsState)),
+      ]);
+      setMoveCount((prevCount) => prevCount + 1);
+      return newColumnsState;
     });
   };
 
@@ -213,11 +225,30 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         }
       });
 
+      setHistory((prevHistory) => [
+        ...prevHistory,
+        JSON.parse(JSON.stringify(newColumns)),
+      ]);
+      setMoveCount((prevCount) => prevCount + 1);
       return newColumns;
     });
 
     setRemainingCardsDeck((prev) => prev.slice(10));
     setVisibleRemainingCards((prev) => prev.slice(0, -1));
+  };
+
+  const handleUndo = () => {
+    if (moveCount > 0) {
+      const previousColumns = JSON.parse(
+        JSON.stringify(history[moveCount - 1])
+      );
+      setColumns(previousColumns);
+      setMoveCount((prevCount) => prevCount - 1);
+
+      if (undoSoundRef.current) {
+        undoSoundRef.current.play();
+      }
+    }
   };
 
   return (
@@ -243,6 +274,7 @@ export const GameProvider = ({ children }: GameProviderProps) => {
         suitOption,
         setSuitOption,
         completedSequences,
+        handleUndo,
       }}
     >
       {children}

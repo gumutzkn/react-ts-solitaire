@@ -1,4 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+
+import victorySound from '../assets/card-sounds/victory.mp3';
 
 import {
   Card,
@@ -22,11 +24,17 @@ const GameBoard = () => {
     completedSequences,
   } = useGameContext();
 
+  const victoryAudioRef = useRef(new Audio(victorySound));
+
   useEffect(() => {
     if (countSequence === 8) {
       setIsGameWon(true);
       setIsModelOpen(true);
       setIsGameStarted(false);
+
+      if (victoryAudioRef.current) {
+        victoryAudioRef.current.play();
+      }
     }
   }, [countSequence]);
 

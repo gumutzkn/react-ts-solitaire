@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { FaPlay, FaPause } from 'react-icons/fa6';
 import { GiCard5Spades } from 'react-icons/gi';
 import { useGameContext } from '../context/GameContext';
+import { FaArrowRotateLeft } from 'react-icons/fa6';
 
 const Navbar: React.FC = () => {
   const {
@@ -11,6 +12,7 @@ const Navbar: React.FC = () => {
     setIsPaused,
     suitOption,
     setSuitOption,
+    handleUndo,
   } = useGameContext();
   const [seconds, setSeconds] = useState<number>(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(
@@ -65,18 +67,31 @@ const Navbar: React.FC = () => {
         Solitaire
       </div>
       <div className='text-xl font-bold'>{formatTime(seconds)}</div>
-      <div className='cursor-pointer flex gap-3'>
+      <div className='flex items-center gap-3'>
+        <FaArrowRotateLeft
+          onClick={handleUndo}
+          className='cursor-pointer'
+          size={30}
+        />
         {isGameStarted ? (
-          <FaPause size={30} onClick={handlePause} />
+          <FaPause
+            size={30}
+            className='cursor-pointer'
+            onClick={handlePause}
+          />
         ) : (
-          <FaPlay size={30} onClick={handleStart} />
+          <FaPlay
+            size={30}
+            className='cursor-pointer'
+            onClick={handleStart}
+          />
         )}
         <select
           name='suit-select'
           id='suit-select'
           onChange={handleSuitChange}
           value={suitOption}
-          className='text-black'
+          className='text-black cursor-pointer'
         >
           <option value='1'>1 Suit</option>
           <option value='2'>2 Suits</option>
