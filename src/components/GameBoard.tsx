@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import victorySound from '../assets/card-sounds/victory.mp3';
 
@@ -80,4 +80,4 @@ const GameBoard = () => {
   );
 };
 
-export default GameBoard;
+export default React.memo(GameBoard);
